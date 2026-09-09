@@ -15,8 +15,7 @@ function Login() {
       const response = await api.post('/auth/login', { username, password });
       const { token, role } = response.data;
 
-      navigate('/dashboard');
-      // We'll redirect to a dashboard page here once we build one
+      navigate('/dashboard'); // redirect 
     } catch (err) {
       setError('Invalid username or password');
     }
