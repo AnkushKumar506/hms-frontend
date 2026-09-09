@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import api from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -13,11 +15,7 @@ function Login() {
       const response = await api.post('/auth/login', { username, password });
       const { token, role } = response.data;
 
-      // Store token so we can use it on future requests
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
-
-      alert('Login successful! Role: ' + role);
+      navigate('/dashboard');
       // We'll redirect to a dashboard page here once we build one
     } catch (err) {
       setError('Invalid username or password');
