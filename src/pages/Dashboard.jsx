@@ -6,7 +6,9 @@ function Dashboard() {
   return (
     <div style={{ padding: '20px' }}>
       <h2>Welcome, {role}</h2>
-      <p><Link to="/patients">View Patients</Link></p>
+      <p>
+       <Link to="/patients">View Patients</Link> | <Link to="/doctors">View Doctors</Link>
+      </p>
     </div>
   );
 }

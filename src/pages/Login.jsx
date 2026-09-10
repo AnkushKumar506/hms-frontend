@@ -15,6 +15,9 @@ function Login() {
       const response = await api.post('/auth/login', { username, password });
       const { token, role } = response.data;
 
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+
       navigate('/dashboard'); // redirect 
     } catch (err) {
       setError('Invalid username or password');
