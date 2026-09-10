@@ -7,7 +7,9 @@ function Dashboard() {
     <div style={{ padding: '20px' }}>
       <h2>Welcome, {role}</h2>
       <p>
-       <Link to="/patients">View Patients</Link> | <Link to="/doctors">View Doctors</Link>
+       <Link to="/patients">View Patients</Link> |{' '}
+       <Link to="/doctors">View Doctors</Link> |{' '}
+       <Link to="/appointments">View Appointments</Link>
       </p>
     </div>
   );
