@@ -24,29 +24,24 @@ function Login() {
     }
   };
 
-  return (
-    <div style={{ maxWidth: '300px', margin: '100px auto' }}>
-      <h2>HMS Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">Login</button>
-      </form>
+   return (
+    <div className="login-page">
+      <div className="login-card">
+        <h2>🏥 HMS Login</h2>
+        <p className="subtitle">Sign in to manage patients, doctors & appointments</p>
+        <form onSubmit={handleLogin}>
+          <div className="field">
+            <label>Username</label>
+            <input value={username} onChange={(e) => setUsername(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label>Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </div>
+          {error && <p className="error-text">{error}</p>}
+          <button type="submit" className="btn btn-primary">Sign In</button>
+        </form>
+      </div>
     </div>
   );
 }

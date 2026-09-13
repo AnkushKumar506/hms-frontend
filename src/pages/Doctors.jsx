@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Layout from '../components/Layout';
 import api from '../api/axios';
 
 function Doctors() {
@@ -6,15 +7,11 @@ function Doctors() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-   const emptyForm = {
-    name: '', specialization: '', contact: '', availability: '',
-  };
+  const emptyForm = { name: '', specialization: '', contact: '', availability: '' };
   const [formData, setFormData] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null); // null = adding new, otherwise = editing this id
+  const [editingId, setEditingId] = useState(null);
 
-  useEffect(() => {
-    fetchDoctors();
-  }, []);
+  useEffect(() => { fetchDoctors(); }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -27,24 +24,17 @@ function Doctors() {
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const payload = { ...formData };
-
       if (editingId) {
-        // UPDATE existing doctor
         await api.put(`/doctors/${editingId}`, payload);
       } else {
-        // CREATE new doctors
         await api.post('/doctors', payload);
       }
-
       setFormData(emptyForm);
       setEditingId(null);
       fetchDoctors();
@@ -55,75 +45,75 @@ function Doctors() {
 
   const handleEdit = (doctor) => {
     setFormData({
-      name: doctor.name,
-      specialization: doctor.specialization,
-      contact: doctor.contact,
-      availability: doctor.availability,
+      name: doctor.name, specialization: doctor.specialization,
+      contact: doctor.contact, availability: doctor.availability,
     });
     setEditingId(doctor.id);
   };
 
-  const handleCancelEdit = () => {
-    setFormData(emptyForm);
-    setEditingId(null);
-  };
+  const handleCancelEdit = () => { setFormData(emptyForm); setEditingId(null); };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this doctor?')) return;
     try {
       await api.delete(`/doctors/${id}`);
-      fetchPatients();
+      fetchDoctors();
     } catch (err) {
       setError('Failed to delete doctor');
     }
   };
 
-  if (loading) return <p>Loading doctors...</p>;
+  if (loading) return <Layout><p>Loading doctors...</p></Layout>;
 
-   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Doctors</h2>
+  return (
+    <Layout>
+      <div className="page-header">
+        <h2>Doctors</h2>
+        <p>Manage doctor profiles, specializations, and availability.</p>
+      </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
 
-  <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+      <div className="card">
         <h3>{editingId ? 'Edit Doctor' : 'Add New Doctor'}</h3>
-        <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
-        <input name="specialization" placeholder="specialization"  value={formData.specialization} onChange={handleChange} required />
-        <input name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
-        <input name="availability" placeholder="availability" value={formData.availability} onChange={handleChange} />
-        <button type="submit">{editingId ? 'Update Doctor' : 'Add Doctor'}</button>
-        {editingId && <button type="button" onClick={handleCancelEdit}>Cancel</button>}
-      </form>
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
+            <input name="specialization" placeholder="Specialization" value={formData.specialization} onChange={handleChange} required />
+            <input name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
+            <input name="availability" placeholder="Availability" value={formData.availability} onChange={handleChange} />
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">{editingId ? 'Update Doctor' : 'Add Doctor'}</button>
+            {editingId && <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>}
+          </div>
+        </form>
+      </div>
 
-      <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%' }}>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Specialization</th>
-      <th>Contact</th>
-      <th>Availability</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {doctors.map((d) => (
-      <tr key={d.id}>
-        <td>{d.id}</td>
-        <td>{d.name}</td>
-        <td>{d.specialization}</td>
-        <td>{d.contact}</td>
-        <td>{d.availability}</td>
-        <td>
-          <button onClick={() => handleEdit(d)}>Edit</button>{' '}
-          <button onClick={() => handleDelete(d.id)}>Delete</button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-    </div>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Specialization</th><th>Contact</th><th>Availability</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {doctors.map((d) => (
+              <tr key={d.id}>
+                <td>{d.id}</td>
+                <td>{d.name}</td>
+                <td>{d.specialization}</td>
+                <td>{d.contact}</td>
+                <td>{d.availability}</td>
+                <td>
+                  <button className="btn btn-edit btn-sm" onClick={() => handleEdit(d)}>Edit</button>{' '}
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(d.id)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Layout>
   );
 }
+
 export default Doctors;
