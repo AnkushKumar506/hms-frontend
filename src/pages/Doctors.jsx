@@ -11,6 +11,9 @@ function Doctors() {
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
 
+  const role = localStorage.getItem('role');
+  const isAdmin = role === 'ADMIN';
+
   useEffect(() => { fetchDoctors(); }, []);
 
   const fetchDoctors = async () => {
@@ -74,26 +77,28 @@ function Doctors() {
 
       {error && <p className="error-text">{error}</p>}
 
-      <div className="card">
-        <h3>{editingId ? 'Edit Doctor' : 'Add New Doctor'}</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
-            <input name="specialization" placeholder="Specialization" value={formData.specialization} onChange={handleChange} required />
-            <input name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
-            <input name="availability" placeholder="Availability" value={formData.availability} onChange={handleChange} />
-          </div>
-          <div className="form-actions">
-            <button type="submit" className="btn btn-primary">{editingId ? 'Update Doctor' : 'Add Doctor'}</button>
-            {editingId && <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>}
-          </div>
-        </form>
-      </div>
+      {isAdmin && (
+        <div className="card">
+          <h3>{editingId ? 'Edit Doctor' : 'Add New Doctor'}</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid">
+              <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
+              <input name="specialization" placeholder="Specialization" value={formData.specialization} onChange={handleChange} required />
+              <input name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
+              <input name="availability" placeholder="Availability" value={formData.availability} onChange={handleChange} />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="btn btn-primary">{editingId ? 'Update Doctor' : 'Add Doctor'}</button>
+              {editingId && <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>}
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="table-wrap">
         <table>
           <thead>
-            <tr><th>ID</th><th>Name</th><th>Specialization</th><th>Contact</th><th>Availability</th><th>Actions</th></tr>
+            <tr><th>ID</th><th>Name</th><th>Specialization</th><th>Contact</th><th>Availability</th>{isAdmin && <th>Actions</th>}</tr>
           </thead>
           <tbody>
             {doctors.map((d) => (
@@ -103,10 +108,12 @@ function Doctors() {
                 <td>{d.specialization}</td>
                 <td>{d.contact}</td>
                 <td>{d.availability}</td>
-                <td>
-                  <button className="btn btn-edit btn-sm" onClick={() => handleEdit(d)}>Edit</button>{' '}
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(d.id)}>Delete</button>
-                </td>
+                {isAdmin && (
+                  <td>
+                    <button className="btn btn-edit btn-sm" onClick={() => handleEdit(d)}>Edit</button>{' '}
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(d.id)}>Delete</button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

@@ -11,6 +11,9 @@ function Patients() {
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
 
+  const role = localStorage.getItem('role');
+  const isAdmin = role === 'ADMIN';
+
   useEffect(() => { fetchPatients(); }, []);
 
   const fetchPatients = async () => {
@@ -79,23 +82,25 @@ function Patients() {
 
       {error && <p className="error-text">{error}</p>}
 
-      <div className="card">
-        <h3>{editingId ? 'Edit Patient' : 'Add New Patient'}</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
-            <input name="age" placeholder="Age" type="number" value={formData.age} onChange={handleChange} required />
-            <input name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange} />
-            <input name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
-            <input name="medicalHistory" placeholder="Medical History" value={formData.medicalHistory} onChange={handleChange} />
-            <input name="admissionStatus" placeholder="Status (OPD/Admitted)" value={formData.admissionStatus} onChange={handleChange} />
-          </div>
-          <div className="form-actions">
-            <button type="submit" className="btn btn-primary">{editingId ? 'Update Patient' : 'Add Patient'}</button>
-            {editingId && <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>}
-          </div>
-        </form>
-      </div>
+      {(isAdmin || editingId) && (
+        <div className="card">
+          <h3>{editingId ? 'Edit Patient' : 'Add New Patient'}</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid">
+              <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
+              <input name="age" placeholder="Age" type="number" value={formData.age} onChange={handleChange} required />
+              <input name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange} />
+              <input name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
+              <input name="medicalHistory" placeholder="Medical History" value={formData.medicalHistory} onChange={handleChange} />
+              <input name="admissionStatus" placeholder="Status (OPD/Admitted)" value={formData.admissionStatus} onChange={handleChange} />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="btn btn-primary">{editingId ? 'Update Patient' : 'Add Patient'}</button>
+              {editingId && <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>}
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="table-wrap">
         <table>
@@ -115,7 +120,9 @@ function Patients() {
                 <td>{statusBadge(p.admissionStatus)}</td>
                 <td>
                   <button className="btn btn-edit btn-sm" onClick={() => handleEdit(p)}>Edit</button>{' '}
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.id)}>Delete</button>
+                  {isAdmin && (
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.id)}>Delete</button>
+                  )}
                 </td>
               </tr>
             ))}
