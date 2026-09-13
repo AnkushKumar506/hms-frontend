@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 function Layout({ children }) {
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
+  {role === 'ADMIN' && <button className="btn btn-danger">Delete</button>}
 
   const handleLogout = () => {
     localStorage.clear();

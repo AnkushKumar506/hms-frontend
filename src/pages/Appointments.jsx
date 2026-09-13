@@ -13,6 +13,9 @@ function Appointments() {
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
 
+  const role = localStorage.getItem('role');
+  const isAdmin = role === 'ADMIN';
+
   useEffect(() => { fetchAll(); }, []);
 
   const fetchAll = async () => {
@@ -90,31 +93,33 @@ function Appointments() {
 
       {error && <p className="error-text">{error}</p>}
 
-      <div className="card">
-        <h3>{editingId ? 'Edit Appointment' : 'Add New Appointment'}</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <select name="patientId" value={formData.patientId} onChange={handleChange} required>
-              <option value="">Select Patient</option>
-              {patients.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-            <select name="doctorId" value={formData.doctorId} onChange={handleChange} required>
-              <option value="">Select Doctor</option>
-              {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </select>
-            <input type="datetime-local" name="appointmentDateTime" value={formData.appointmentDateTime} onChange={handleChange} required />
-            <select name="status" value={formData.status} onChange={handleChange}>
-              <option value="Scheduled">Scheduled</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div className="form-actions">
-            <button type="submit" className="btn btn-primary">{editingId ? 'Update Appointment' : 'Add Appointment'}</button>
-            {editingId && <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>}
-          </div>
-        </form>
-      </div>
+      {(isAdmin || editingId) && (
+        <div className="card">
+          <h3>{editingId ? 'Edit Appointment' : 'Add New Appointment'}</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid">
+              <select name="patientId" value={formData.patientId} onChange={handleChange} required>
+                <option value="">Select Patient</option>
+                {patients.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <select name="doctorId" value={formData.doctorId} onChange={handleChange} required>
+                <option value="">Select Doctor</option>
+                {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+              <input type="datetime-local" name="appointmentDateTime" value={formData.appointmentDateTime} onChange={handleChange} required />
+              <select name="status" value={formData.status} onChange={handleChange}>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="btn btn-primary">{editingId ? 'Update Appointment' : 'Add Appointment'}</button>
+              {editingId && <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>}
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="table-wrap">
         <table>
@@ -131,7 +136,9 @@ function Appointments() {
                 <td>{statusBadge(a.status)}</td>
                 <td>
                   <button className="btn btn-edit btn-sm" onClick={() => handleEdit(a)}>Edit</button>{' '}
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(a.id)}>Delete</button>
+                  {isAdmin && (
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(a.id)}>Delete</button>
+                  )}
                 </td>
               </tr>
             ))}
