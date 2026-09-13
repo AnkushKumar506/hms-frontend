@@ -7,7 +7,7 @@ function Doctors() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const emptyForm = { name: '', specialization: '', contact: '', availability: '' };
+  const emptyForm = { name: '', specialization: '', contact: '', availability: '', username: '', password: '' };
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
 
@@ -32,11 +32,18 @@ function Doctors() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData };
       if (editingId) {
+        // Editing only touches profile fields, not login credentials
+        const payload = {
+          name: formData.name,
+          specialization: formData.specialization,
+          contact: formData.contact,
+          availability: formData.availability,
+        };
         await api.put(`/doctors/${editingId}`, payload);
       } else {
-        await api.post('/doctors', payload);
+        // Creating a new doctor also creates their login account
+        await api.post('/auth/register-doctor', formData);
       }
       setFormData(emptyForm);
       setEditingId(null);
@@ -50,6 +57,7 @@ function Doctors() {
     setFormData({
       name: doctor.name, specialization: doctor.specialization,
       contact: doctor.contact, availability: doctor.availability,
+      username: '', password: '', // not editable here
     });
     setEditingId(doctor.id);
   };
@@ -62,7 +70,7 @@ function Doctors() {
       await api.delete(`/doctors/${id}`);
       fetchDoctors();
     } catch (err) {
-      setError('Failed to delete doctor');
+      setError(err.response?.data?.error || 'Failed to delete doctor');
     }
   };
 
@@ -86,6 +94,12 @@ function Doctors() {
               <input name="specialization" placeholder="Specialization" value={formData.specialization} onChange={handleChange} required />
               <input name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
               <input name="availability" placeholder="Availability" value={formData.availability} onChange={handleChange} />
+              {!editingId && (
+                <>
+                  <input name="username" placeholder="Login Username" value={formData.username} onChange={handleChange} required />
+                  <input name="password" type="password" placeholder="Login Password" value={formData.password} onChange={handleChange} required />
+                </>
+              )}
             </div>
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">{editingId ? 'Update Doctor' : 'Add Doctor'}</button>
@@ -98,7 +112,7 @@ function Doctors() {
       <div className="table-wrap">
         <table>
           <thead>
-            <tr><th>ID</th><th>Name</th><th>Specialization</th><th>Contact</th><th>Availability</th>{isAdmin && <th>Actions</th>}</tr>
+            <tr><th>ID</th><th>Name</th><th>Specialization</th><th>Contact</th><th>Availability</th><th>Username</th>{isAdmin && <th>Actions</th>}</tr>
           </thead>
           <tbody>
             {doctors.map((d) => (
@@ -108,6 +122,7 @@ function Doctors() {
                 <td>{d.specialization}</td>
                 <td>{d.contact}</td>
                 <td>{d.availability}</td>
+                <td>{d.username}</td>
                 {isAdmin && (
                   <td>
                     <button className="btn btn-edit btn-sm" onClick={() => handleEdit(d)}>Edit</button>{' '}
